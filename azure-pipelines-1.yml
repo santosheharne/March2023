@@ -1,0 +1,35 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+trigger:
+  branches:
+    include:
+      - "*"
+stages:
+  - stage: _default
+    jobs:
+      - job: Job
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: CmdLine@2
+            inputs:
+              script: git clone --mirror
+                https://----oh7hhrq43eaafxpnwo5da3fjyhdvyd6jj5mkacgw55omjamcr77q---@dev.azure.com/{santosheharne}/{santosh}/_git/{repo}
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: $(System.DefaultWorkingDirectory)
+              includeRootFolder: true
+              archiveType: zip
+              archiveFile: $(Build.ArtifactStagingDirectory)/Backup.zip
+              replaceExistingArchive: true
+          - task: AzureFileCopy@3
+            displayName: AzureBlob File Copy
+            inputs:
+              SourcePath: $(Build.ArtifactStagingDirectory)/Backup.zip
+              azureSubscription: "{72458e7c-446c-42d6-be92-97126c9aafce}"
+              Destination: AzureBlob
+              storage: "{backupdevop}"
+              ContainerName: "{devopbackup}"
+              BlobPrefix: "{devopbackup}"
